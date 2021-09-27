@@ -5,36 +5,41 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 class Photos extends StatelessWidget {
   final List<dynamic>? photos;
-
-  Photos({
-    required this.photos,
-  });
+  final int? indexP;
+  Photos({required this.photos, this.indexP});
   @override
   Widget build(BuildContext context) {
     return Container(
         height: MediaQuery.of(context).size.height,
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
+          enableRotation: true,
           builder: (BuildContext context, int index) {
             return PhotoViewGalleryPageOptions(
-              imageProvider: NetworkImage(photos![index]["path"]),
-              initialScale: PhotoViewComputedScale.contained * 0.8,
-              heroAttributes:
-                  PhotoViewHeroAttributes(tag: photos![index]["title"]),
+              imageProvider: NetworkImage(photos![indexP! + index]),
+              initialScale: PhotoViewComputedScale.contained,
+              minScale: PhotoViewComputedScale.contained * 0.8,
+              maxScale: PhotoViewComputedScale.covered * 2,
+
+              // heroAttributes:
+              //     PhotoViewHeroAttributes(tag: "photos"),
             );
           },
-          itemCount: photos!.length,
+          itemCount: photos!.length-indexP!,
           loadingBuilder: (context, event) => Center(
             child: Container(
               width: 20.0,
               height: 20.0,
               child: CircularProgressIndicator(
-                  value: event == null ? 0 : event.cumulativeBytesLoaded / 4
-                  // event.expectedTotalBytes,
-                  ),
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              ),
             ),
           ),
-          // backgroundDecoration:
+          // backgroundDecoration: BoxDecoration(
+          // color: Theme.of(context).canvasColor,
+          // )
           // pageController: pageController,
           // onPageChanged: onPageChanged,
         ));
