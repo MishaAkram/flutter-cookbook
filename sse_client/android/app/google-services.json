@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "682239632695",
+    "project_id": "sse-client",
+    "storage_bucket": "sse-client.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682239632695:android:9a9d464ee7b1678541a6b2",
+        "android_client_info": {
+          "package_name": "com.example.sse_client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682239632695-f9mf09lgf124l86h0p3jpkgrtb9scd4j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiaQ5fRnKL5WWU0pVQJVbwQBmZqmhHRvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682239632695-f9mf09lgf124l86h0p3jpkgrtb9scd4j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
