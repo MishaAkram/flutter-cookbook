@@ -1,21 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // id
     'High Importance Notifications', // title
     'This channel is used for important notifications.', // description
     importance: Importance.high,
     playSound: true);
-Future _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print('A bg message just showed up : ${message.messageId}');
-}
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('A bg message just showed up :  ${message.messageId}');
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +23,7 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -36,7 +35,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,6 +49,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
+
   final String title;
 
   @override
@@ -60,67 +59,65 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.name,
+                'Hi',
+                color: Colors.blue,
+                playSound: true,
+                icon: '@mipmap/ic_launcher',
+              ),
+            ));
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      RemoteNotification notification = message.notification!;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(notification.title!),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(notification.body!)],
+                  ),
+                ),
+              );
+            });
+      }
+    });
+  }
+
   void showNotification() {
     setState(() {
       _counter++;
     });
     flutterLocalNotificationsPlugin.show(
-         0,
-         "Testing $_counter",
-         "How you doin ?",
-         NotificationDetails(
-             android: AndroidNotificationDetails(channel.id, channel.name, channel.description,
-                 importance: Importance.high,
-                 color: Colors.blue,
-                 playSound: true,
-                 icon: '@mipmap/ic_launcher',
-                 )));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-       RemoteNotification? notification = message.notification;
-       AndroidNotification? android = message.notification?.android;
-       if (notification != null && android != null) {
-         flutterLocalNotificationsPlugin.show(
-             notification.hashCode,
-             notification.title,
-             notification.body,
-             NotificationDetails(
-               android: AndroidNotificationDetails(
-                 channel.id,
-                 channel.name,
-                 channel.description,
-                 color: Colors.blue,
-                 playSound: true,
-                 icon: '@mipmap/ic_launcher',
-               ),
-             ));
-       }
-     });
-
-     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-       print('A new onMessageOpenedApp event was published!');
-       RemoteNotification? notification = message.notification;
-       AndroidNotification? android = message.notification?.android;
-       if (notification != null && android != null) {
-         showDialog(
-             context: context,
-             builder: (_) {
-               return AlertDialog(
-                 title: Text(notification.title!),
-                 content: SingleChildScrollView(
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [Text(notification.body!)],
-                   ),
-                 ),
-               );
-             });
-       }
-     });
+        0,
+        "Nikkdroid $_counter",
+        "How you doing ?",
+        NotificationDetails(
+            android: AndroidNotificationDetails(channel.name, 'HI',
+                importance: Importance.high,
+                color: Colors.blue,
+                playSound: true,
+                icon: '@mipmap/ic_launcher')));
   }
 
   @override
@@ -147,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: showNotification,
         tooltip: 'Increment',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
